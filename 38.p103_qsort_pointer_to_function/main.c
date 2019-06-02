@@ -39,15 +39,22 @@ char *lineptr[MAXLINES]; /* 定义一个数组，每个数组元素指向一个字符文本行 */
 
 int readlines(char *lineptr[], int maxlines);
 void writelines(char *lineptr[], int nlines);
-void qsort(char *lineptr[], int left, int right);
+void swap(char *v[], int i, int j);
+int numcmp(char *s1, char *s2);
+void qsort1(void *v[], int left, int right, int (*comp)(void *, void *));
 
-int main()
+int main(int argc, char *argv[])
 {
-	int nlines;
+	int nlines;//读入的输入行数
+    int numeric = 0;//若进行数值排序，则numeric的值为1
 
+    //判断是否是数值排序
+    if(argc > 1 && strcmp(argv[1], "-n") == 0){
+        numeric = 1;
+    }
 	if ((nlines = readlines(lineptr, MAXLINES)) >= 0)
 	{
-		qsort(lineptr, 0, nlines - 1);
+		qsort1((void **)lineptr, 0, nlines - 1, (int(*)(void *, void *))(numeric ? numcmp : strcmp));
 		writelines(lineptr, nlines);
 		return 0;
 	}
@@ -70,13 +77,13 @@ int readlines(char *lineptr[], int maxlines)
 	nlines = 0;
 	while ((len = getline1(line, MAXLEN)) > 0)
 	{
-		if (nlines >= maxlines || (p = alloc(len)) == NULL)
+		if (nlines >= maxlines || (p = alloc(len + 1)) == NULL)
 		{
 			return -1;
 		}
 		else
 		{
-			line[len -1] = '\0'; //删除换行符
+			line[len] = '\0'; //删除换行符
 			strcpy(p, line);
 			lineptr[nlines++] = p;
 		}
@@ -102,27 +109,6 @@ void writelines(char *lineptr[],int nlines)
 	}
 }
 
-void qsort(char *v[], int left, int right)
-{
-	int i, last;
-	void swap(char *v[], int i, int j);
-	if (left >= right)//如果数组元素个数小于2,则返回
-	{
-		return;
-	}
-	swap(v, left, (left + right) / 2);
-	last = left;
-	for (i = left + 1; i <= right; i++)
-	{
-		if (strcmp(v[i], v[left]) < 0)
-		{
-			swap(v, ++last, i);
-		}
-	}
-	swap(v, left, last);
-	qsort(v, left, last - 1);
-	qsort(v, last + 1, right);
-}
 
 void swap(char *v[], int i, int j)
 {
@@ -135,9 +121,8 @@ void swap(char *v[], int i, int j)
 
 
 /*--------  以递增顺序对v[left]...v[right]进行排序  --------*/
-void qsort(void *v[], int left, int right, int (*comp)(void *, void *)){
+void qsort1(void *v[], int left, int right, int (*comp)(void *, void *)){
     int i, last;
-    void swap(void *v[], int, int);
     if (left >= right) {
         return;
     }
@@ -149,8 +134,8 @@ void qsort(void *v[], int left, int right, int (*comp)(void *, void *)){
         }
     }
     swap(v, left, last);
-    qsort(v, left, last-1, comp);
-    qsort(v, last+1, right, comp);
+    qsort1(v, left, last-1, comp);
+    qsort1(v, last+1, right, comp);
 }
 
 
