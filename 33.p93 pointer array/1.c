@@ -69,14 +69,14 @@ int readlines(char *lineptr[], int maxlines)
 	nlines = 0;
 	while ((len = getline1(line, MAXLEN)) > 0)
 	{
-		if (nlines >= maxlines || (p = alloc(len)) == NULL)
+		if (nlines >= maxlines || (p = alloc(len + 1)) == NULL)
 		{
 			return -1;
 		}
 		else
 		{
-			line[len -1] = '\0'; //删除换行符
-			strcpy(p, line);
+			line[len] = '\0'; //删除换行符
+			strcpy(p, line);//将指针line指向的字符串复制到指针s指向的位置
 			lineptr[nlines++] = p;
 		}
 	}
@@ -101,6 +101,7 @@ void writelines(char *lineptr[],int nlines)
 	}
 }
 
+//This sort algorithm refers to the fast sort algorithm
 void qsort(char *v[], int left, int right)
 {
 	int i, last;
@@ -113,7 +114,7 @@ void qsort(char *v[], int left, int right)
 	last = left;
 	for (i = left + 1; i <= right; i++)
 	{
-		if (strcmp(v[i], v[left]) < 0)
+		if (strcmp(v[i], v[left]) < 0)//对两个指针指向的字符串按字典顺序比较，前一个 小于、等于或大于 后一个，分别返回负整数、0或正整数，返回值是s和t由前向后逐字符比较时遇到的第一个不相等字符出的字符的差值
 		{
 			swap(v, ++last, i);
 		}
